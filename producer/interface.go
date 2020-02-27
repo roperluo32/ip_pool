@@ -12,10 +12,10 @@ type ProxyGetter interface {
 	GetProxyIPs() ([]IPItem, error)
 }
 
-// Saver 存储器
+// ProxySaver 存储器
 type ProxySaver interface {
-	// SaveIpItems保存proxy ip
-	SaveIpItems([]IPItem) error
+	// SaveIPItems保存proxy ip
+	SaveIPItems([]IPItem) error
 	// 获取存储中的proxy ip总数
-	GetTotalNum() int
+	GetTotalNum() (int, error)
 }

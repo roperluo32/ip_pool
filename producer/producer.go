@@ -1,14 +1,14 @@
 package producer
 
 import (
-	"time"
 	"log"
+	"time"
 )
 
 // Producer 代理产生器
 type Producer struct {
 	// proxy getter的记录器，记录运行状态
-	recorders []*getterRecorder		
+	recorders []*getterRecorder
 	// 存储器
 	saver ProxySaver
 	// quit
@@ -19,11 +19,11 @@ type Producer struct {
 type getterRecorder struct {
 	ProxyGetter
 	// 上次运行的时间
-	lastRunTime time.Time   
+	lastRunTime time.Time
 }
 
 // GetNextRunTime 获取下一次运行的时间
-func (gr *getterRecorder) GetNextRunTime() time.Time{
+func (gr *getterRecorder) GetNextRunTime() time.Time {
 	return gr.lastRunTime.Add(gr.GetInterval())
 }
 
@@ -33,7 +33,7 @@ func (p *Producer) RegisterProxyGetter(getter ProxyGetter) {
 }
 
 // Run 运行
-func (p *Producer) Run(){
+func (p *Producer) Run() {
 	// 100ms loop一次
 	interval := 100 * time.Millisecond
 	ticker := time.NewTicker(interval)
@@ -41,9 +41,9 @@ func (p *Producer) Run(){
 
 	for {
 		select {
-		case <- ticker.C:
+		case <-ticker.C:
 			p.oneLoop()
-		case <- p.quit:
+		case <-p.quit:
 			log.Println("receive quit signal. quit...")
 			return
 		}
@@ -57,32 +57,32 @@ func (p *Producer) oneLoop() {
 			continue
 		}
 		// 执行网络操作前赋值，避免重复执行
-		recorder.lastRunTime = now	
+		recorder.lastRunTime = now
 		// 拉取代理ip
-		go func() {
-			ipItems, err := recorder.GetProxyIPs()
+		go func(recod *getterRecorder) {
+			ipItems, err := recod.GetProxyIPs()
 			if err != nil {
-				log.Printf("[ERROR]: get proxy ip fail.err:%v, recorder:%v\n", err, recorder)
+				log.Printf("[ERROR]: get proxy ip fail.err:%+v, recorder:%v\n", err, recod)
 				return
 			}
-			if err := p.saver.SaveIpItems(ipItems); err != nil{
-				log.Printf("[ERROR] save ip items fail.items:%v, err:%v\n", ipItems, err)
+			if err := p.saver.SaveIPItems(ipItems); err != nil {
+				log.Printf("[ERROR] save ip items fail.items:%v, err:%+v\n", ipItems, err)
 				return
 			}
-		}()
+		}(recorder)
 	}
 }
 
-// Stop
+// Stop 停止
 func (p *Producer) Stop() {
 	p.quit <- 1
-	return 
+	return
 }
 
 // NewProducer 新建一个proxy producer
 func NewProducer(s ProxySaver) *Producer {
 	return &Producer{
 		saver: s,
-		quit: make(chan int),
+		quit:  make(chan int),
 	}
 }
