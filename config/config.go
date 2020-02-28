@@ -12,6 +12,12 @@ type RedisConfig struct {
 	Password string
 }
 
+// ValidatorConfig 配置
+type ValidatorConfig struct {
+	Interval int // 毫秒。一次循环的间隔时间
+	Timeout  int // 秒。验证一个代理的超时时间
+}
+
 // XunDaiLiConfig 讯代理配置
 type XunDaiLiConfig struct {
 	OrderNo    string
@@ -24,9 +30,11 @@ type XunDaiLiConfig struct {
 
 // Config 配置文件
 type Config struct {
-	Port     int
-	Redis    RedisConfig
-	XunDaiLi XunDaiLiConfig
+	Port      int
+	Domains   []string //支持的多域名，一个代理ip池，同时支持多个爬虫（域名）
+	Redis     RedisConfig
+	XunDaiLi  XunDaiLiConfig
+	Validator ValidatorConfig
 }
 
 // C 全局配置

@@ -2,6 +2,7 @@ package producer
 
 import (
 	"log"
+	"sync"
 	"time"
 )
 
@@ -79,10 +80,17 @@ func (p *Producer) Stop() {
 	return
 }
 
+var once sync.Once
+var _producer Producer
+
 // NewProducer 新建一个proxy producer
 func NewProducer(s ProxySaver) *Producer {
-	return &Producer{
-		saver: s,
-		quit:  make(chan int),
-	}
+	once.Do(func() {
+		_producer = Producer{
+			saver: s,
+			quit:  make(chan int),
+		}
+	})
+
+	return &_producer
 }

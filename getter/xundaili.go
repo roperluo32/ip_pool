@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"ip_proxy/config"
+	"ip_proxy/model"
 	"ip_proxy/producer"
 
 	"net/http"
@@ -48,7 +49,7 @@ func (xd *XunDaiLi) GetInterval() time.Duration {
 }
 
 // GetProxyIPs 抓取代理ip
-func (xd *XunDaiLi) GetProxyIPs() ([]producer.IPItem, error) {
+func (xd *XunDaiLi) GetProxyIPs() ([]model.IPItem, error) {
 	req, err := http.NewRequest(xd.method, xd.reqURL, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "http new request fail")
@@ -75,10 +76,10 @@ func (xd *XunDaiLi) GetProxyIPs() ([]producer.IPItem, error) {
 		return nil, fmt.Errorf("xdaili response code not equal 0.response:%v", xdaliResp)
 	}
 
-	var ipItems []producer.IPItem
+	var ipItems []model.IPItem
 	for _, res := range xdaliResp.Result {
 		port, _ := strconv.Atoi(res.Port)
-		newItem := producer.IPItem{
+		newItem := model.IPItem{
 			IP:   res.IP,
 			Port: port,
 		}
