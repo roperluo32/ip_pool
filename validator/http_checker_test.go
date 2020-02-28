@@ -11,7 +11,7 @@ import (
 func TestHttpCheckerBasic(t *testing.T) {
 	config.Init("conf", "..")
 	c := HTTPChecker{}
-	isValid, err := c.CheckRawProxy("www.douban.com", model.IPItem{IP: "180.125.70.156", Port: 32572})
+	isValid, err := c.CheckRawProxy("www.douban.com", model.IPItem{IP: "117.69.51.122", Port: 42888})
 	assert.Nil(t, err)
 	assert.Equal(t, isValid, true)
 }

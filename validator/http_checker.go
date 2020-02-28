@@ -4,15 +4,12 @@ import (
 	"fmt"
 	"ip_proxy/config"
 	"ip_proxy/model"
-	// "log"
+	"log"
 	"math/rand"
 	"time"
 
-	"crypto/tls"
-	// "github.com/asmcos/requests"
+	"github.com/asmcos/requests"
 	"github.com/pkg/errors"
-	"net/http"
-	"net/url"
 )
 
 var fakeUAs = []string{
@@ -45,50 +42,24 @@ type HTTPChecker struct {
 // CheckRawProxy 检查代理是否有效
 func (hc *HTTPChecker) CheckRawProxy(domain string, proxy model.IPItem) (bool, error) {
 
-	// req := requests.Requests()
-	// // 设置代理和超时时间
-	// proxyURL := fmt.Sprintf("http://%s:%d", proxy.IP, proxy.Port)
-	// req.Proxy(proxyURL)
-	// req.SetTimeout(time.Duration(config.C.Validator.Timeout))
-	// // header
-	// header := requests.Header{
-	// 	"User-Agent": fakeUAs[rand.Intn(len(fakeUAs))],
-	// }
-	// url := fmt.Sprintf("http://%s", domain)
-	// log.Printf("proxyURL:%v, timeout:%v, header:%v, url:%v\n", proxyURL, config.C.Validator.Timeout, header, url)
-	// resp, err := req.Get(url, header)
-	// log.Printf("resp:%v", resp)
-	// if err != nil {
-	// 	return false, errors.Wrapf(err, "check proxy get fail.domain:%v, proxy:%v", domain, proxy)
-	// }
-	// if resp.R.StatusCode != 200 {
-	// 	return false, errors.Errorf("check proxy response status code not equal to 200.domain:%v, proxy:%v", domain, proxy)
-	// }
+	 req := requests.Requests()
+	 // 设置代理和超时时间
+	 proxyURL := fmt.Sprintf("http://%s:%d", proxy.IP, proxy.Port)
+	 req.Proxy(proxyURL)
+	 req.SetTimeout(time.Duration(config.C.Validator.Timeout))
+	 // header
+	 header := requests.Header{
+	 	"User-Agent": fakeUAs[rand.Intn(len(fakeUAs))],
+	 }
+	 url := fmt.Sprintf("http://%s", domain)
+	 log.Printf("proxyURL:%v, timeout:%v, header:%v, url:%v\n", proxyURL, config.C.Validator.Timeout, header, url)
+	 resp, err := req.Get(url, header)
+	 if err != nil {
+	 	return false, errors.Wrapf(err, "check proxy get fail.domain:%v, proxy:%v", domain, proxy)
+	 }
+	 if resp.R.StatusCode != 200 {
+	 	return false, errors.Errorf("check proxy response status code not equal to 200.domain:%v, proxy:%v", domain, proxy)
+	 }
 
-	reqURL := fmt.Sprintf("http://%s", domain)
-	req, err := http.NewRequest("GET", reqURL, nil)
-	if err != nil {
-		return false, errors.Wrap(err, "http new request fail")
-	}
-	req.Header.Add("User-Agent", fakeUAs[rand.Intn(len(fakeUAs))])
-
-	proxyURL := fmt.Sprintf("http://%s:%d", proxy.IP, proxy.Port)
-	proxyItem, _ := url.Parse(proxyURL)
-	tr := &http.Transport{
-		Proxy:           http.ProxyURL(proxyItem),
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	client := http.Client{
-		Timeout:   time.Duration(config.C.Validator.Timeout) * time.Second,
-		Transport: tr,
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return false, errors.Wrapf(err, "check proxy get fail.domain:%v, proxy:%v", domain, proxy)
-	}
-	if resp.StatusCode != 200 {
-		return false, errors.Errorf("check proxy response status code not equal to 200.domain:%v, proxy:%v", domain, proxy)
-	}
 	return true, nil
 }
