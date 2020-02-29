@@ -9,7 +9,8 @@ redis:
   maxtrytimes: 3
 
 validator:
-  interval: 300  # 毫秒 一次循环的间隔时间
+  rawinterval: 300  # 毫秒 一次循环的间隔时间
+  validinterval: 800  # 毫秒 一次循环的间隔时间
   timeout: 1     # 秒 验证一个代理的超时时间
 
 xundaili:

@@ -15,8 +15,9 @@ type RedisConfig struct {
 
 // ValidatorConfig 配置
 type ValidatorConfig struct {
-	Interval int // 毫秒。一次循环的间隔时间
-	Timeout  int // 秒。验证一个代理的超时时间
+	RawInterval   int // 毫秒。检查raw代理的间隔时间
+	ValidInterval int // 毫秒。检查valid代理的间隔
+	Timeout       int // 秒。验证一个代理的超时时间
 }
 
 // XunDaiLiConfig 讯代理配置
@@ -45,6 +46,7 @@ var C Config
 func Init(name, path string) {
 	viper.SetConfigName(name)   // 设置配置文件名 (不带后缀)
 	viper.AddConfigPath(path)   // 第一个搜索路径
+	viper.AddConfigPath(".")    // 默认也在当前路径下寻找
 	err := viper.ReadInConfig() // 读取配置数据
 	if err != nil {
 		panic(fmt.Errorf("read config file fail. err: %s", err))

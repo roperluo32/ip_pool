@@ -20,17 +20,30 @@ func TestValidatorBasic(t *testing.T) {
 
 	validor.Stop()
 
-	num, err := storage.GetNumOfRaw("www.aaaa.cn")
+	domain := "www.aaaa.cn"
+	num, err := storage.GetNumOfRaw(domain)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, num)
-	num, err = storage.GetNumOfValid("www.aaaa.cn")
+	num, err = storage.GetNumOfValid(domain)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, num)
+	proxy, err := storage.GetOneValidProxy(domain)
+	assert.NotNil(t, err)
+	assert.Equal(t, "", proxy.IP)
 
-	num, err = storage.GetNumOfRaw("www.ropertest.com")
+	domain = "www.ropertest.com"
+	num, err = storage.GetNumOfRaw(domain)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, num)
-	num, err = storage.GetNumOfValid("www.ropertest.com")
+	num, err = storage.GetNumOfValid(domain)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, num)
+	proxy, err = storage.GetOneValidProxy(domain)
+	assert.Nil(t, err)
+	assert.NotEqual(t, "", proxy.IP)
+	err = storage.DeleteValidProxy(domain, proxy, true)
+	assert.Nil(t, err)
+	num, err = storage.GetNumOfValid(domain)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, num)
 }

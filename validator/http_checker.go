@@ -38,8 +38,8 @@ var fakeUAs = []string{
 type HTTPChecker struct {
 }
 
-// CheckRawProxy 检查代理是否有效
-func (hc *HTTPChecker) CheckRawProxy(domain string, proxy model.IPItem) (bool, error) {
+// CheckProxyValid 检查代理是否有效
+func (hc *HTTPChecker) CheckProxyValid(domain string, proxy model.IPItem) (bool, error) {
 	log.Printf("start to check raw proxy.domain:%v, proxy:%v\n", domain, proxy)
 	req := requests.Requests()
 	// 设置代理和超时时间

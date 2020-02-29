@@ -33,7 +33,7 @@ func (ml *MockStorage) GetOneRawProxy(domain string) (model.IPItem, error) {
 		return model.IPItem{}, fmt.Errorf("domain:%v not supported", domain)
 	}
 	if len(domain_proxies) == 0 {
-		return model.IPItem{}, fmt.Errorf("domain:%v has no raw proxy", domain)
+		return model.IPItem{}, nil
 	}
 	rand.Seed(time.Now().Unix())
 	return domain_proxies[rand.Intn(len(domain_proxies))], nil
@@ -68,6 +68,35 @@ func (ml *MockStorage) SaveValidProxy(domain string, proxy model.IPItem) error {
 
 	ml.valids[domain] = append(ml.valids[domain], proxy)
 	return nil
+}
+
+// GetOneValidProxy 获取一个有效proxy ip
+func (ml *MockStorage) GetOneValidProxy(domain string) (model.IPItem, error) {
+	domain_proxies, ok := ml.valids[domain]
+	if ok == false {
+		return model.IPItem{}, fmt.Errorf("domain:%v not exist", domain)
+	}
+	if len(domain_proxies) == 0 {
+		return model.IPItem{}, nil
+	}
+	rand.Seed(time.Now().Unix())
+	return domain_proxies[rand.Intn(len(domain_proxies))], nil
+}
+
+// 删除一个有效proxy ip
+func (ml *MockStorage) DeleteValidProxy(domain string, proxy model.IPItem, isValid bool) error {
+	domain_proxies, ok := ml.valids[domain]
+	if ok == false {
+		return fmt.Errorf("domain:%v not supported", domain)
+	}
+	for i, item := range domain_proxies {
+		if item.IP == proxy.IP && item.Port == proxy.Port {
+			ml.valids[domain] = append(ml.valids[domain][:i], ml.valids[domain][i+1:]...)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("proxy:%v not exist", proxy)
 }
 
 func (ml *MockStorage) GetNumOfValid(domain string) (int, error) {

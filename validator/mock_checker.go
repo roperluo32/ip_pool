@@ -7,7 +7,7 @@ import (
 type MockChecker struct {
 }
 
-func (mc *MockChecker) CheckRawProxy(domain string, proxy model.IPItem) (bool, error) {
+func (mc *MockChecker) CheckProxyValid(domain string, proxy model.IPItem) (bool, error) {
 	if proxy.IP == "127.0.0.1" {
 		return true, nil
 	}

@@ -12,10 +12,14 @@ type ProxyStorage interface {
 	DeleteRawProxy(domain string, proxy model.IPItem, isValid bool) error
 	// 保存一个有效proxy ip
 	SaveValidProxy(domain string, proxy model.IPItem) error
+	// 获取一个有效proxy ip
+	GetOneValidProxy(domain string) (model.IPItem, error)
+	// 删除一个有效proxy ip
+	DeleteValidProxy(domain string, proxy model.IPItem, isValid bool) error
 }
 
 // ProxyChecker  代理检查器，检查代理ip是否有效
 type ProxyChecker interface {
 	// 检查一个原始proxy ip是否有效
-	CheckRawProxy(domain string, proxy model.IPItem) (bool, error)
+	CheckProxyValid(domain string, proxy model.IPItem) (bool, error)
 }

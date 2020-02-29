@@ -11,29 +11,27 @@ import (
 
 // GetOneRawProxy 获取一个原始proxy ip
 func (rs *RedisStorage) GetOneRawProxy(domain string) (model.IPItem, error) {
-	items, err := redis.Values(rs.conn.Do("hkeys", domain))
+	proxy, err := rs.getRandFieldFromHashMap(domain)
 	if err != nil {
-		return model.IPItem{}, errors.Wrap(err, "redis hkeys fail")
+		return model.IPItem{}, errors.Wrap(err, "getRandFieldFromHashMap fail")
 	}
-	if len(items) == 0 {
+	if proxy == "" {
 		return model.IPItem{}, nil
 	}
 
-	proxy := items[rand.Intn(len(items))]
-	key := string(proxy.([]byte))
-	return stringToIPItem(key), nil
+	return stringToIPItem(proxy), nil
 }
 
-func (rs *RedisStorage) shouldDeleteRawProxy(domain string, key string, isValid bool) (bool, error) {
+func (rs *RedisStorage) shouldDelete(hmkey string, key string, isValid bool) (bool, error) {
 	if isValid { //代理ip是有效的，那么就直接从raw proxy中删除
 		return true, nil
 	}
 
 	// 代理ip无效，并且重试超过N次（可配置），也该删除了
-	tryTimes, err := redis.Int(rs.conn.Do("hget", domain, key))
-	log.Printf("trytimes:%v, domain:%v, key:%v\n", tryTimes, domain, key)
+	tryTimes, err := redis.Int(rs.conn.Do("hget", hmkey, key))
+	log.Printf("trytimes:%v, domain:%v, key:%v\n", tryTimes, hmkey, key)
 	if err != nil {
-		return false, errors.Wrapf(err, "hget fail.domain:%v, key:%v", domain, key)
+		return false, errors.Wrapf(err, "hget fail.domain:%v, key:%v", hmkey, key)
 	}
 	if tryTimes+1 >= config.C.Redis.MaxTryTimes {
 		return true, nil
@@ -42,26 +40,30 @@ func (rs *RedisStorage) shouldDeleteRawProxy(domain string, key string, isValid 
 	return false, nil
 }
 
-// DeleteRawProxy 删除一个原始proxy ip.isValid用来告诉Modifier，这个代理ip是否是有效的，以帮助它去决策是否真正从代理池中删除
-func (rs *RedisStorage) DeleteRawProxy(domain string, proxy model.IPItem, isValid bool) error {
-	key := ipItemToString(proxy)
-	canDelete, err := rs.shouldDeleteRawProxy(domain, key, isValid)
+func (rs *RedisStorage) deleteOneProxy(hmKey string, key string, isValid bool) error {
+	canDelete, err := rs.shouldDelete(hmKey, key, isValid)
 	if err != nil {
-		return errors.Wrap(err, "shouldDeleteRawProxy return fail")
+		return errors.Wrap(err, "shouldDelete return fail")
 	}
-	log.Printf("DeleteRawProxy.domain:%v, proxy:%v, canDelete:%v, isValid:%v\n", domain, proxy, canDelete, isValid)
+	log.Printf("DeleteRawProxy.domain:%v, proxy:%v, canDelete:%v, isValid:%v\n", hmKey, key, canDelete, isValid)
 	if canDelete {
-		log.Printf("delete key:%v, domain:%v\n", key, domain)
-		if _, err := rs.conn.Do("hdel", domain, key); err != nil {
+		log.Printf("delete key:%v, domain:%v\n", key, hmKey)
+		if _, err := rs.conn.Do("hdel", hmKey, key); err != nil {
 			return errors.Wrap(err, "hdel fail")
 		}
 		return nil
 	}
-	if _, err := rs.conn.Do("hincrby", domain, key, 1); err != nil {
+	if _, err := rs.conn.Do("hincrby", hmKey, key, 1); err != nil {
 		return errors.Wrap(err, "hincrby fail")
 	}
 
 	return nil
+}
+
+// DeleteRawProxy 删除一个原始proxy ip.isValid用来告诉Modifier，这个代理ip是否是有效的，以帮助它去决策是否真正从代理池中删除
+func (rs *RedisStorage) DeleteRawProxy(domain string, proxy model.IPItem, isValid bool) error {
+	key := ipItemToString(proxy)
+	return rs.deleteOneProxy(domain, key, isValid)
 }
 
 // SaveValidProxy 保存一个有效proxy ip
@@ -83,4 +85,37 @@ func (rs *RedisStorage) GetNumOfValid(domain string) (int, error) {
 	}
 
 	return totalNum, err
+}
+
+func (rs *RedisStorage) getRandFieldFromHashMap(hmKey string) (string, error) {
+	items, err := redis.Values(rs.conn.Do("hkeys", hmKey))
+	if err != nil {
+		return "", errors.Wrap(err, "redis hkeys fail")
+	}
+	if len(items) == 0 {
+		return "", nil
+	}
+
+	proxy := items[rand.Intn(len(items))]
+	return string(proxy.([]byte)), nil
+}
+
+// GetOneValidProxy 获取一个有效proxy ip
+func (rs *RedisStorage) GetOneValidProxy(domain string) (model.IPItem, error) {
+	proxy, err := rs.getRandFieldFromHashMap(validProxyKey(domain))
+	if err != nil {
+		return model.IPItem{}, errors.Wrap(err, "getRandFieldFromHashMap fail")
+	}
+	if proxy == "" {
+		return model.IPItem{}, nil
+	}
+
+	return stringToIPItem(proxy), nil
+}
+
+// DeleteValidProxy 删除一个有效proxy ip
+func (rs *RedisStorage) DeleteValidProxy(domain string, proxy model.IPItem, isValid bool) error {
+	key := ipItemToString(proxy)
+	hmKey := validProxyKey(domain)
+	return rs.deleteOneProxy(hmKey, key, isValid)
 }
