@@ -3,7 +3,7 @@
 all: build
 
 build:
-	go build -o proxy_pool ./pool
+	go build -o proxy_pool ./concretepool
 test:
 	go test ./...
 
