@@ -2,14 +2,13 @@ package validator
 
 import (
 	"fmt"
+	"github.com/asmcos/requests"
+	"github.com/pkg/errors"
 	"ip_proxy/config"
 	"ip_proxy/model"
 	"log"
 	"math/rand"
 	"time"
-
-	"github.com/asmcos/requests"
-	"github.com/pkg/errors"
 )
 
 var fakeUAs = []string{
@@ -41,25 +40,26 @@ type HTTPChecker struct {
 
 // CheckRawProxy 检查代理是否有效
 func (hc *HTTPChecker) CheckRawProxy(domain string, proxy model.IPItem) (bool, error) {
+	log.Printf("start to check raw proxy.domain:%v, proxy:%v\n", domain, proxy)
+	req := requests.Requests()
+	// 设置代理和超时时间
+	proxyURL := fmt.Sprintf("http://%s:%d", proxy.IP, proxy.Port)
+	req.Proxy(proxyURL)
+	req.SetTimeout(time.Duration(config.C.Validator.Timeout))
+	// header
+	header := requests.Header{
+		"User-Agent": fakeUAs[rand.Intn(len(fakeUAs))],
+	}
+	url := fmt.Sprintf("http://%s", domain)
+	//  log.Printf("proxyURL:%v, timeout:%v, header:%v, url:%v\n", proxyURL, config.C.Validator.Timeout, header, url)
+	resp, err := req.Get(url, header)
+	if err != nil {
+		return false, errors.Wrapf(err, "check proxy get fail.domain:%v, proxy:%v", domain, proxy)
+	}
+	if resp.R.StatusCode != 200 {
+		return false, errors.Errorf("check proxy response status code not equal to 200.domain:%v, proxy:%v", domain, proxy)
+	}
 
-	 req := requests.Requests()
-	 // 设置代理和超时时间
-	 proxyURL := fmt.Sprintf("http://%s:%d", proxy.IP, proxy.Port)
-	 req.Proxy(proxyURL)
-	 req.SetTimeout(time.Duration(config.C.Validator.Timeout))
-	 // header
-	 header := requests.Header{
-	 	"User-Agent": fakeUAs[rand.Intn(len(fakeUAs))],
-	 }
-	 url := fmt.Sprintf("http://%s", domain)
-	 log.Printf("proxyURL:%v, timeout:%v, header:%v, url:%v\n", proxyURL, config.C.Validator.Timeout, header, url)
-	 resp, err := req.Get(url, header)
-	 if err != nil {
-	 	return false, errors.Wrapf(err, "check proxy get fail.domain:%v, proxy:%v", domain, proxy)
-	 }
-	 if resp.R.StatusCode != 200 {
-	 	return false, errors.Errorf("check proxy response status code not equal to 200.domain:%v, proxy:%v", domain, proxy)
-	 }
-
+	log.Printf("raw proxy check success.domain:%v, proxy:%v\n", domain, proxy)
 	return true, nil
 }

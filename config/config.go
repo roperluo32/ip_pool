@@ -8,8 +8,9 @@ import (
 
 // RedisConfig 定义配置文件解析后的结构
 type RedisConfig struct {
-	URL      string
-	Password string
+	URL         string
+	Password    string
+	MaxTryTimes int
 }
 
 // ValidatorConfig 配置

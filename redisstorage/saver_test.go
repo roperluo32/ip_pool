@@ -10,9 +10,8 @@ import (
 )
 
 func TestRedisSaverBasic(t *testing.T) {
-	config.Init("conf", "..")
-	saver := NewReidsSaver()
-	rs := saver.(*RedisStorage)
+	config.Init("test.conf", "..")
+	rs := NewReidsSaver()
 
 	rs.SaveIPItems([]model.IPItem{
 		model.IPItem{IP: "127.0.0.1", Port: 11118},
@@ -30,9 +29,8 @@ func TestRedisSaverBasic(t *testing.T) {
 }
 
 func TestRedisSaverZero(t *testing.T) {
-	config.Init("conf", "..")
-	saver := NewReidsSaver()
-	rs := saver.(*RedisStorage)
+	config.Init("test.conf", "..")
+	rs := NewReidsSaver()
 	// 保存一个0个代理
 	rs.SaveIPItems([]model.IPItem{})
 

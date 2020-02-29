@@ -1,7 +1,6 @@
 package redisstorage
 
 import (
-	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"github.com/pkg/errors"
 	"ip_proxy/model"
@@ -16,9 +15,9 @@ func (rs *RedisStorage) SaveIPItems(items []model.IPItem) error {
 			continue
 		}
 
-		ipPort := fmt.Sprintf("%s:%d", item.IP, item.Port)
+		ipPort := ipItemToString(item)
 		for _, domain := range rs.domains {
-			if err := rs.conn.Send("lpush", domain, ipPort); err != nil {
+			if err := rs.conn.Send("hmset", domain, ipPort, 0); err != nil {
 				log.Printf("save proxy to redis domain:%v fail.proxy:%v, err:%v\n", domain, item, err)
 				continue
 			}
@@ -31,7 +30,7 @@ func (rs *RedisStorage) SaveIPItems(items []model.IPItem) error {
 // GetTotalNum 返回总的原始代理数
 func (rs *RedisStorage) GetTotalNum() (int, error) {
 	// 默认返回domains[0]的代理数量
-	totalNum, err := redis.Int(rs.conn.Do("llen", rs.domains[0]))
+	totalNum, err := redis.Int(rs.conn.Do("hlen", rs.domains[0]))
 	if err != nil {
 		return -1, errors.Wrapf(err, "get redis raw proxy total num for domain:%v fail", rs.domains[0])
 	}
@@ -39,9 +38,9 @@ func (rs *RedisStorage) GetTotalNum() (int, error) {
 	return totalNum, err
 }
 
-// GetDomainTotalProxy 返回指定域名的原始代理数
-func (rs *RedisStorage) GetDomainTotalProxy(domain string) (int, error) {
-	totalNum, err := redis.Int(rs.conn.Do("llen", domain))
+// GetNumOfRaw 返回指定域名的原始代理数
+func (rs *RedisStorage) GetNumOfRaw(domain string) (int, error) {
+	totalNum, err := redis.Int(rs.conn.Do("hlen", domain))
 	if err != nil {
 		return -1, errors.Wrapf(err, "get redis raw proxy total num for domain:%v fail", domain)
 	}

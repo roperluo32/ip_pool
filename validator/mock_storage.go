@@ -14,13 +14,13 @@ type MockStorage struct {
 
 func (ml *MockStorage) Init() {
 	ml.proxies = map[string][]model.IPItem{
-		"www.douban.com": []model.IPItem{
+		"www.ropertest.com": []model.IPItem{
 			model.IPItem{IP: "127.0.0.1", Port: 8008, Typ: model.TypGaoNi},
 			model.IPItem{IP: "192.168.0.2", Port: 18668, Typ: model.TypGaoNi},
 			model.IPItem{IP: "17.291.192.6", Port: 6115, Typ: model.TypGaoNi},
 			model.IPItem{IP: "39.27.92.38", Port: 2893, Typ: model.TypGaoNi},
 		},
-		"www.zhihu.com": []model.IPItem{
+		"www.aaaa.cn": []model.IPItem{
 			model.IPItem{IP: "58.19.0.23", Port: 37082, Typ: model.TypGaoNi},
 		},
 	}
@@ -55,7 +55,7 @@ func (ml *MockStorage) DeleteRawProxy(domain string, proxy model.IPItem, valid b
 	return fmt.Errorf("proxy:%v not exist", proxy)
 }
 
-func (ml *MockStorage) GetNumOfDomain(domain string) (int, error) {
+func (ml *MockStorage) GetNumOfRaw(domain string) (int, error) {
 	return len(ml.proxies[domain]), nil
 }
 

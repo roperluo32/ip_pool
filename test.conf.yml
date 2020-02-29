@@ -1,0 +1,21 @@
+port: 10666
+domains:
+  - "www.ropertest.com"
+  - "www.aaaa.cn"
+  
+redis: 
+  url: "127.0.0.1:6379"
+  password: ""
+  maxtrytimes: 3
+
+validator:
+  interval: 300  # 毫秒 一次循环的间隔时间
+  timeout: 1     # 秒 验证一个代理的超时时间
+
+xundaili:
+  orderno: "YZ20202278975rexFg1"
+  returntype: "2"
+  count: "1"
+  spiderid: "fb8e55dde13e487c83530f25b8025bd9"
+  interval: 10  # 秒
+  timeout: 3    # 秒

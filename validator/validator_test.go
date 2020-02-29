@@ -8,7 +8,7 @@ import (
 )
 
 func TestValidatorBasic(t *testing.T) {
-	config.Init("conf", "..")
+	config.Init("test.conf", "..")
 	storage := &MockStorage{}
 	storage.Init()
 
@@ -20,17 +20,17 @@ func TestValidatorBasic(t *testing.T) {
 
 	validor.Stop()
 
-	num, err := storage.GetNumOfDomain("www.zhihu.com")
+	num, err := storage.GetNumOfRaw("www.aaaa.cn")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, num)
-	num, err = storage.GetNumOfValid("www.zhihu.com")
+	num, err = storage.GetNumOfValid("www.aaaa.cn")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, num)
 
-	num, err = storage.GetNumOfDomain("www.douban.com")
+	num, err = storage.GetNumOfRaw("www.ropertest.com")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, num)
-	num, err = storage.GetNumOfValid("www.douban.com")
+	num, err = storage.GetNumOfValid("www.ropertest.com")
 	assert.Nil(t, err)
 	assert.Equal(t, 2, num)
 }

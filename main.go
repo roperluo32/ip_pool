@@ -1,10 +1,9 @@
 package main
 
 import (
-	"net/http"
 	"github.com/gin-gonic/gin"
 	"log"
-	"ip_proxy/producer"
+	"net/http"
 )
 
 func main() {
@@ -15,6 +14,6 @@ func main() {
 			"message": "pong",
 		})
 	})
-	producer.Add(3, 5)
+
 	http.ListenAndServe(":8888", r)
 }

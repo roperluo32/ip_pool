@@ -11,7 +11,7 @@ import (
 )
 
 func TestXunDaiLiBasic(t *testing.T) {
-	config.Init("conf", "..")
+	config.Init("test.conf", "..")
 
 	getter := NewXunDaiLiGetter()
 	xdl := getter.(*XunDaiLi)

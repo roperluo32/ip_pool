@@ -41,7 +41,11 @@ func (va *Validator) oneLoop() {
 			// 获取一个原始proxy
 			proxy, err := va.proxyStorage.GetOneRawProxy(domain)
 			if err != nil {
-				log.Printf("[WARN]get proxy for domain:%v fail.err:%+v\n", domain, err)
+				log.Printf("[ERROR]get proxy for domain:%v fail.err:%+v\n", domain, err)
+				return
+			}
+			if proxy.IP == "" {
+				log.Printf("[WARN] domain:%v don't have raw ip now\n", domain)
 				return
 			}
 
@@ -59,7 +63,9 @@ func (va *Validator) oneLoop() {
 			}
 
 			// 从原始proxy池子中删掉
-			va.proxyStorage.DeleteRawProxy(domain, proxy, isValid)
+			if err := va.proxyStorage.DeleteRawProxy(domain, proxy, isValid); err != nil {
+				log.Printf("DeleteRawProxy fail.err:%+v, domain:%v, proxy:%v\n", err, domain, proxy)
+			}
 		}(d)
 
 		wg.Wait()
