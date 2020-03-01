@@ -1,4 +1,7 @@
 port: 10666
+log:
+  level: debug
+  
 domains:
   - "www.ropertest.com"
   - "www.aaaa.cn"

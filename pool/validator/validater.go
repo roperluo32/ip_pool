@@ -1,9 +1,9 @@
 package validator
 
 import (
-	"ip_proxy/comminterface/storage"
-	"ip_proxy/concretecmpt/config"
-	"log"
+	"ip_proxy/abstract/storage"
+	"ip_proxy/component/config"
+	"ip_proxy/component/log"
 	"sync"
 	"time"
 )
@@ -25,7 +25,7 @@ func (va *Validator) Run() {
 	for {
 		select {
 		case <-va.quit:
-			log.Println("receive quit signal. quit...")
+			log.Info("receive quit signal. quit...")
 			return
 		case <-rawTicker.C:
 			va.doRawCheck()
@@ -44,30 +44,30 @@ func (va *Validator) doRawCheck() {
 			// 获取一个原始proxy
 			proxy, err := va.proxyStorage.GetOneRawProxy(domain)
 			if err != nil {
-				log.Printf("[ERROR]get raw proxy for domain:%v fail.err:%+v\n", domain, err)
+				log.Errorf("[ERROR]get raw proxy for domain:%v fail.err:%+v\n", domain, err)
 				return
 			}
 			if proxy.IP == "" {
-				// log.Printf("[WARN] domain:%v don't have raw ip now\n", domain)
+				// log.Errorf("[WARN] domain:%v don't have raw ip now\n", domain)
 				return
 			}
 
 			// 检查是否有效
 			isValid, err := va.proxyChecker.CheckProxyValid(domain, proxy)
 			if err != nil {
-				log.Printf("[ERROR]check raw proxy:%v for domain:%v fail.err:%+v\n", proxy, domain, err)
+				log.Errorf("[ERROR]check raw proxy:%v for domain:%v fail.err:%v\n", proxy, domain, err)
 			}
 			// 保存有效的代理
 			if isValid {
 				if err := va.proxyStorage.SaveValidProxy(domain, proxy); err != nil {
-					log.Printf("[ERROR]save valid proxy fail.domain:%v, proxy:%v, err:%+v", domain, proxy, err)
+					log.Errorf("[ERROR]save valid proxy fail.domain:%v, proxy:%v, err:%+v", domain, proxy, err)
 					return
 				}
 			}
 
 			// 从原始proxy池子中删掉
 			if err := va.proxyStorage.DeleteRawProxy(domain, proxy, isValid); err != nil {
-				log.Printf("DeleteRawProxy fail.err:%+v, domain:%v, proxy:%v\n", err, domain, proxy)
+				log.Errorf("DeleteRawProxy fail.err:%+v, domain:%v, proxy:%v\n", err, domain, proxy)
 				return
 			}
 		}(d)
@@ -85,23 +85,23 @@ func (va *Validator) doValidCheck() {
 			// 获取一个valid proxy
 			proxy, err := va.proxyStorage.GetOneValidProxy(domain)
 			if err != nil {
-				log.Printf("[ERROR]get valid proxy for domain:%v fail.err:%+v\n", domain, err)
+				log.Errorf("[ERROR]get valid proxy for domain:%v fail.err:%+v\n", domain, err)
 				return
 			}
 			if proxy.IP == "" {
-				// log.Printf("[WARN] domain:%v don't have valid ip now\n", domain)
+				// log.Errorf("[WARN] domain:%v don't have valid ip now\n", domain)
 				return
 			}
 
 			// 检查是否有效
 			isValid, err := va.proxyChecker.CheckProxyValid(domain, proxy)
 			if err != nil {
-				log.Printf("[ERROR]check valid proxy:%v for domain:%v fail.err:%+v\n", proxy, domain, err)
+				log.Errorf("[ERROR]check valid proxy fail.ip:%v, domain:%v.err:%v\n", proxy, domain, err)
 			}
 			// 无效的ip删除之
 			if isValid == false {
 				if err := va.proxyStorage.DeleteValidProxy(domain, proxy, isValid); err != nil {
-					log.Printf("DeleteValidProxy fail.err:%+v, domain:%v, proxy:%v\n", err, domain, proxy)
+					log.Errorf("DeleteValidProxy fail.err:%+v, domain:%v, proxy:%v\n", err, domain, proxy)
 					return
 				}
 			}

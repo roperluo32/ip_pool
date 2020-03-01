@@ -2,8 +2,8 @@ package validator
 
 import (
 	"github.com/stretchr/testify/assert"
-	"ip_proxy/comminterface/storage"
-	"ip_proxy/concretecmpt/config"
+	"ip_proxy/abstract/storage"
+	"ip_proxy/component/config"
 	"testing"
 	"time"
 )

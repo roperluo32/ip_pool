@@ -1,4 +1,8 @@
 port: 10666
+
+log:
+  level: info
+
 domains:
   - "www.douban.com"
   - "www.zhihu.com"
@@ -16,7 +20,7 @@ validator:
 xundaili:
   orderno: "YZ20202278975rexFg1"
   returntype: "2"
-  count: "1"
+  count: "30"
   spiderid: "fb8e55dde13e487c83530f25b8025bd9"
   interval: 10  # 秒
   timeout: 3    # 秒

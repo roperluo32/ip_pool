@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"ip_proxy/comminterface/storage"
+	"ip_proxy/abstract/storage"
 )
 
 func TestBasicProducer(t *testing.T) {

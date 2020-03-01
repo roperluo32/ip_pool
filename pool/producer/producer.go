@@ -1,8 +1,8 @@
 package producer
 
 import (
-	"ip_proxy/comminterface/storage"
-	"log"
+	"ip_proxy/abstract/storage"
+	"ip_proxy/component/log"
 	"sync"
 	"time"
 )
@@ -46,7 +46,7 @@ func (p *Producer) Run() {
 		case <-ticker.C:
 			p.oneLoop()
 		case <-p.quit:
-			log.Println("receive quit signal. quit...")
+			log.Info("receive quit signal. quit...")
 			return
 		}
 	}
@@ -64,11 +64,11 @@ func (p *Producer) oneLoop() {
 		go func(recod *getterRecorder) {
 			ipItems, err := recod.GetProxyIPs()
 			if err != nil {
-				log.Printf("[ERROR]: get proxy ip fail.err:%+v, recorder:%v\n", err, recod)
+				log.Errorf("[ERROR]: get proxy ip fail.err:%+v, recorder:%v\n", err, recod)
 				return
 			}
 			if err := p.saver.SaveIPItems(ipItems); err != nil {
-				log.Printf("[ERROR] save ip items fail.items:%v, err:%+v\n", ipItems, err)
+				log.Errorf("[ERROR] save ip items fail.items:%v, err:%+v\n", ipItems, err)
 				return
 			}
 		}(recorder)
