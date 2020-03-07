@@ -23,3 +23,8 @@ xundaili:
   spiderid: "fb8e55dde13e487c83530f25b8025bd9"
   interval: 10  # 秒
   timeout: 3    # 秒
+
+qingting:
+  requrl: "http://www.baidu.com"
+  interval: 10 #秒
+  timeout: 3 #秒

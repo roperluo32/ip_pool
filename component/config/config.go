@@ -30,6 +30,13 @@ type XunDaiLiConfig struct {
 	Timeout    int // 秒。多久超时。Timeout最好小于Interval
 }
 
+// QingTingConfig 蜻蜓代理配置
+type QingTingConfig struct {
+	ReqURL   string
+	Interval int //秒
+	Timeout  int //秒
+}
+
 // LogConfig 日志配置
 type LogConfig struct {
 	Level string //日志等级。trace/debug/info/warn/error/fatal/panic
@@ -43,6 +50,7 @@ type Config struct {
 	Log       LogConfig
 	Redis     RedisConfig
 	XunDaiLi  XunDaiLiConfig
+	QingTing  QingTingConfig
 	Validator ValidatorConfig
 }
 

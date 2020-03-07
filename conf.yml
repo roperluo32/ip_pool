@@ -20,7 +20,7 @@ validator:
 xundaili:
   orderno: "YZ20202278975rexFg1"
   returntype: "2"
-  count: "30"
+  count: "1"
   spiderid: "fb8e55dde13e487c83530f25b8025bd9"
-  interval: 10  # 秒
+  interval: 20  # 秒
   timeout: 3    # 秒

@@ -5,6 +5,7 @@ import (
 	"ip_proxy/component/config"
 	"ip_proxy/component/getter/xdaili"
 	"ip_proxy/component/log"
+
 	// "ip_proxy/component/log/logrusger"
 	"ip_proxy/component/storage/redisstorage"
 	"ip_proxy/pool/producer"
@@ -13,9 +14,7 @@ import (
 
 func main() {
 	config.Init("conf", "..")
-	// 初始化日志
-	// logIns := logrusger.NewLogrusLogger()
-	// log.SetLogger(logIns)
+
 	// 初始化底层部件
 	redisSaver := redisstorage.NewReidsSaver()
 	xdlGetter := xdaili.NewXunDaiLiGetter()
